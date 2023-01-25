@@ -1,30 +1,22 @@
-#----------------------------------------------------------------------------
-# camera_scraper.py
-# This script was developed in order to scrape images from multiple traffic camera feeds from one city/organization.
-# This script is solely for pulling the latest camera feeds and placing them in folders
-#
-# Created By: 
-#   Stefan Todorovic - github.com/steftodor
-#
-# version ='0.1'
-#
-# notes : none
-
 from datetime import datetime
 import time, requests, os
+import sysgit init
+import glob
+import boto3
+# os.chdir('C:\\Users\\alps\\Documents\\camera_scraper_beta1')
+s3 = boto3.client('s3')
+S3_BUCKET_NAME = 'filescrape'
+path = '/Users/allan/Downloads/traffic-cam-scraper/camera/MontezumaRoad/'
+#path='C:\\Users\\alps\\Documents\\camera_scraper_beta1\\traffic-cam-scraper\\camera\\redmtn\\'
+# from botocore.exceptions import NoCredentialsError
 
 
-# EXAMPLE camera url of https://mycity.com/trafficcameras/camera=22/capture
-# url_front = "https://mycity.com/trafficcameras/camera="
-# url_end = "/capture" 
-# camera_ids = [22]
-
-url_front = "" #portion of url before camera id
+url_front = "https://cocam.carsprogram.org/Live_View/US6216East.jpg?1674438600000" #portion of url before camera id
 url_end = "" # portion url after the camera ID
-camera_ids = [] # Camera id (part of url that changes to indicate camera)
-img_type = "" # File extention used when saving image files
+camera_ids = ['MontezumaRoad'] # Camera id (part of url that changes to indicate camera)
+img_type = "jpg" # File extention used when saving image files
 
-img_dir = "camera" # Directory where subdirectories for each camera will be stored
+img_dir = "./camera" # Directory where subdirectories for each camera will be stored
 capture_interval = 10 # Interval between end of last capture and start of current capture
 
 def capture_all_cameras():
@@ -56,12 +48,22 @@ def configure_folders():
         else:
              print(f"Path for camera {camera} exists")
 
+def files():
+    list_of_files = glob.glob(path + '*.jpg')
+    latest_file = max(list_of_files, key=os.path.getctime)
+    print(latest_file)
+
+    s3 = boto3.client('s3')
+    with open(latest_file, 'rb') as f:
+        s3.upload_fileobj(f, S3_BUCKET_NAME, latest_file)
+
 
 camera_ids.sort()
 configure_folders()
 while(True):
     capture_all_cameras()
     time.sleep(capture_interval)
+    files()
 
 
 
