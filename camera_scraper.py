@@ -1,8 +1,8 @@
 from datetime import datetime
 import time, requests, os
-import sysgit init
 import glob
 import boto3
+import pandas as pd
 # os.chdir('C:\\Users\\alps\\Documents\\camera_scraper_beta1')
 s3 = boto3.client('s3')
 S3_BUCKET_NAME = 'filescrape'
@@ -18,6 +18,10 @@ img_type = "jpg" # File extention used when saving image files
 
 img_dir = "./camera" # Directory where subdirectories for each camera will be stored
 capture_interval = 10 # Interval between end of last capture and start of current capture
+
+df = pd.read_csv('MtnCameras.csv')
+for i ,row in df.iterrows():
+        value = print(f"{row['url']}")
 
 def capture_all_cameras():
     currentTimeDate = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
